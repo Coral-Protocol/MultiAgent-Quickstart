@@ -1,84 +1,146 @@
-# How to Build a Multi-Agent System with Awesome Open Source Agents using Coral Protocol
+# Building Multi-Agent Systems with Coral Protocol - A Complete Development Guide
 
-This guide provides a step-by-step guide to build and run a complete **multi-agent system** using [Coral Protocol](https://github.com/Coral-Protocol), open-source agents, and Coral Studio so you can view all the interactions visually.
+This comprehensive guide demonstrates how to construct and deploy a sophisticated multi-agent system using Coral Protocol, open-source agents, and Coral Studio for visual interaction monitoring. The tutorial walks through creating a collaborative network of specialized agents that can communicate autonomously while maintaining proper isolation and scalability.
 
-## Introduction
+## Understanding Multi-Agent Systems and Coral Protocol
 
-### What is Coral?
+### The Power of Distributed Agent Architectures
 
-Coral Protocol provides a collaboration infrastructure for AI agents. It allows agent developers to publish agent advertisements that any other agent or any multi-agent application can immediately use on demand.
+Multi-agent systems represent a paradigm shift from monolithic AI applications toward distributed, specialized intelligence networks. Rather than overwhelming a single agent with complex, multi-faceted tasks, this architecture allows for separation of concerns where each agent focuses on specific responsibilities and expertise areas.
 
-Agent developers earn incentives when their agents are used.
-Application developers can mix and match from Coral’s growing library of agents to assemble advanced systems faster and without vendor lock-in.
+Traditional single-process workflow frameworks like LangChain excel in their domain but require developers to algorithmically define inter-agent interactions. This approach, while functional, can become limiting when dealing with the nuanced, dynamic collaboration patterns that LLM-powered agents naturally excel at. The challenge lies in moving beyond rigid, function-call-based interactions toward more organic, organization-like structures where teams overlap and processes emerge naturally.
 
-In this scenario, you would be an application developer, using Coral Protocol's local mode to build a multi-agent system by bringing together existing open source agents.
+However, this agentic flexibility introduces novel production challenges including user data isolation, horizontal scalability, and system composability. These concerns become critical when transitioning from development prototypes to production-ready systems.
 
+### Coral Protocol as Collaboration Infrastructure
 
----
+Coral Protocol addresses these challenges by providing a robust collaboration infrastructure specifically designed for AI agents and production software service systems. The protocol enables agent developers to publish standardized agent advertisements that can be immediately consumed by other agents or multi-agent applications on demand.
 
-## Prerequisites
+The system leverages the Model Control Protocol (MCP) as its transport layer, facilitating seamless communication between agents and users while maintaining compatibility with any MCP-supporting agent framework. This design creates a marketplace-like ecosystem where agent developers receive incentives for usage, while application developers can dynamically compose systems from Coral's growing agent library without vendor lock-in concerns.
 
-Before you set up and run Coral, make sure your local environment has the following tools installed.
+In this implementation scenario, you function as an application developer utilizing Coral Protocol's local development mode to assemble a multi-agent system from existing open-source components.
 
-These are required to run agents, Coral Server, Coral Studio, and external LLMs like OpenAI.
-
-### Required Tools & Versions
-
-| Tool | Version | Why You Need It                                             |
-|------|---------|-------------------------------------------------------------|
-| **Python** | 3.10+ | Needed for the agents in this guide         |
-| **uv** | latest | Python environment & dependency manager ([install guide](https://docs.astral.sh/uv/getting-started/installation/)) |
-| **Node.js** | 18+ | Required to run Coral Studio (the UI)                       |
-| **npm** | Comes with Node | Used to install and run Studio dependencies                 |
-| **Git** | latest | To clone agent and Coral repos                              |
-| **OpenAI API Key** | Any | Needed for agents using OpenAI models (GPT)                 |
-
-### Recommended Tools
-
-| Tool | Reason |
-|------|--------|
-| **Visual Studio Code** | IDE for editing agent code and config |
-
----
-
-## Note on Docker
-All of these components are possible to run in Docker containers, but for this guide we will be running them locally.
-
-See our Docker guide for more details on how to run Coral in Docker: [Coral Docker Guide](./docker-guide.md)
-
-## Note on Windows
-If you're on Windows, you may need to use Git Bash or WSL (Windows Subsystem for Linux) to run the commands in this guide. PowerShell may not work correctly with some of the commands.
-
-WSL 2 works, but WSL1 performs better.
-
-Alternatively, you may use Docker, but Windows users may suffer from performance issues with Docker Desktop since windows forces all containers to run in WSL2.
-
-# Getting Started
-First clone this repository:
-```bash
-git clone https://github.com/Coral-Protocol/MultiAgent-Quickstart.git
-cd MultiAgent-Quickstart
+```mermaid
+graph TB
+    subgraph "User Interface Layer"
+        CS[Coral Studio UI]
+        User[End User]
+    end
+    
+    subgraph "Coral Protocol Infrastructure"
+        Server[Coral Server]
+        Session[Session Manager]
+    end
+    
+    subgraph "Agent Network"
+        Interface[Interface Agent<br/>User Communication]
+        GitHub[GitHub Agent<br/>Repository Operations] 
+        Firecrawl[Firecrawl Agent<br/>Web Scraping]
+    end
+    
+    subgraph "External Services"
+        OpenAI[OpenAI API]
+        GitHubAPI[GitHub API]
+        FirecrawlAPI[Firecrawl API]
+    end
+    
+    User <--> CS
+    CS <--> Server
+    Server <--> Session
+    Session <--> Interface
+    Session <--> GitHub
+    Session <--> Firecrawl
+    
+    Interface <--> GitHub
+    Interface <--> Firecrawl
+    GitHub <--> Firecrawl
+    
+    Interface --> OpenAI
+    GitHub --> GitHubAPI
+    Firecrawl --> FirecrawlAPI
+    
+    classDef userLayer fill:#e1f5fe
+    classDef infraLayer fill:#f3e5f5
+    classDef agentLayer fill:#e8f5e8
+    classDef serviceLayer fill:#fff3e0
+    
+    class CS,User userLayer
+    class Server,Session infraLayer
+    class Interface,GitHub,Firecrawl agentLayer
+    class OpenAI,GitHubAPI,FirecrawlAPI serviceLayer
 ```
 
-After cloning that, cd in and clone the server:
+### Tutorial Architecture Overview
+
+This guide establishes a three-agent collaborative system where agents communicate freely with each other and interface with users through a web-based management console. The tutorial comprehensively covers local Python agent execution from source code, multi-agent session creation, web-based agent interaction, and real-time collaboration observation through Coral Studio's monitoring capabilities.
+
+The final section explores production deployment considerations, transitioning from development prototypes to scalable, production-ready multi-agent systems.
+
+## Development Environment Prerequisites
+
+### Essential Development Tools and Dependencies
+
+Before beginning the Coral Protocol setup, your local development environment requires specific tools to support agent execution, Coral Server operations, Coral Studio interface, and external LLM integrations.
+
+| Tool | Version | Purpose and Importance                                             |
+|------|---------|-------------------------------------------------------------|
+| **Python** | 3.10+ | Runtime environment for the Python-based agents used throughout this guide |
+| **uv** | latest | Modern Python environment and dependency manager providing fast, reliable package management ([installation guide](https://docs.astral.sh/uv/getting-started/installation?utm_source=github&utm_medium=referral&utm_campaign=nir_github&utm_id=nir_coralprotocol)). Critical requirement: ensure UV is accessible system-wide and not bound to specific Python contexts |
+| **Node.js** | 18+ | JavaScript runtime required for Coral Studio web interface execution |
+| **npm** | Bundled with Node | Package manager for installing and managing Studio dependencies |
+| **Git** | latest | Version control system for cloning agent repositories and Coral codebase |
+| **OpenAI API Key** | Active subscription | Authentication credentials for agents utilizing OpenAI's language models |
+| **Java** | 21+ | Runtime environment required for Gradle build system and Coral server execution |
+
+### Recommended Development Tools
+
+| Tool | Benefit |
+|------|---------|
+| **Visual Studio Code** | Comprehensive IDE providing excellent support for agent code editing and configuration management |
+
+### Important Platform Considerations
+
+**Docker Alternative**: While all components in this guide can be containerized using Docker, the tutorial focuses on local execution for enhanced development visibility and debugging capabilities. For production Docker deployments, consult the separate [Coral Docker Guide](https://docs.coralprotocol.org/CoralDoc/Introduction/CoralServerForApplications#docker-orchestration-from-inside-docker?utm_source=github&utm_medium=referral&utm_campaign=nir_github&utm_id=nir_coralprotocol).
+
+**Windows Compatibility**: This guide currently targets Unix-like environments. Windows users should utilize Windows Subsystem for Linux (WSL) to ensure compatibility. When using WSL, execute all git operations within the WSL environment to prevent line-ending conflicts.
+
+## Project Structure Setup and Repository Management
+
+### Creating the Development Workspace
+
+Begin by establishing a dedicated working directory that will contain all project components. This organized structure ensures clean separation between the Coral server, agent implementations, and configuration files.
+
+```bash
+mkdir multiagents-coral-tutorial
+cd multiagents-coral-tutorial
+```
+
+### Coral Server Repository Setup
+
+Clone the Coral server repository using the stable tutorial branch, which contains tested configurations specifically designed for this learning scenario.
 
 ```bash
 git clone -b stabletutorial https://github.com/Coral-Protocol/coral-server
 ```
 
-Lastly you will need the agents. cd into `agents` and clone the agent repos.
+### Agent Repository Configuration
+
+Create a dedicated agents directory and populate it with the three specialized agents that will comprise your multi-agent system. Each agent serves a distinct purpose in the collaborative network.
 
 ```bash
+mkdir agents
 cd agents
 git clone -b stabletutorial https://github.com/Coral-Protocol/Coral-GithubMCP-Agent.git github
 git clone -b stabletutorial https://github.com/Coral-Protocol/Coral-FirecrawlMCP-Agent.git firecrawl
-git clone -b stabletutorial https://github.com/Coral-Protocol/Coral-Interface-Agent.git interface
+git clone -b stable https://github.com/Coral-Protocol/Coral-Interface-Agent.git interface
 ```
 
-Once you've cloned everything, your file structure should look like this:
+### Verifying Project Structure
+
+After completing the repository cloning process, your directory structure should match the following organization, which enables proper relative path resolution for agent execution.
 
 ```
-MultiAgent-Quickstart/
+multiagents-coral-tutorial/
 ├── coral-server/
 ├── agents/
 │   ├── github/
@@ -87,122 +149,289 @@ MultiAgent-Quickstart/
 ├── ...
 ```
 
+## Coral Server Configuration and Initialization
 
-## Run Coral Server
+### Understanding Coral Server's Role
 
-**Coral Server** is the engine that runs your multi-agent sessions, executes agent logic, and facilitates communication between agents.
+The Coral Server functions as the orchestration engine for your multi-agent ecosystem, managing session lifecycles, executing agent logic, and facilitating secure communication channels between agents. Before launching the server, you must create a comprehensive configuration file that defines agent capabilities, runtime environments, and integration parameters.
 
-In this step, you'll set up and start Coral Server locally, with the config path pointed at the repository root, so it uses our provided `application.yaml` config. Without specifying a path, the internal example application yml would be used, which won't have the agents we want on it.
+### Application Configuration File Creation
 
-### 1. Run the Coral Server from source
+Create an `application.yaml` configuration file in the project root directory. This file defines the complete agent registry, including execution parameters, environment variables, and communication protocols.
+
+<details>
+  <summary>application.yaml</summary>
+
+```yaml
+applications:
+  - id: "app"
+    name: "Default Application"
+    description: "Default application for testing"
+    privacyKeys:
+      - "priv"
+
+registry:
+  interface:
+    options:
+      - name: "MODEL_API_KEY"
+        type: "string"
+        description: "API key for the model provider"
+      - name: "MODEL_NAME"
+        type: "string"
+        description: "What model to use (e.g 'gpt-4.1')"
+        default: "gpt-4.1"
+      - name: "MODEL_PROVIDER"
+        type: "string"
+        description: "What model provider to use (e.g 'openai', etc)"
+        default: "openai"
+      - name: "MODEL_MAX_TOKENS"
+        type: "string"
+        description: "Max tokens to use"
+        default: "16000"
+      - name: "MODEL_TEMPERATURE"
+        type: "string"
+        description: "What model temperature to use"
+        default: "0.3"
+      - name: "TIMEOUT_MS"
+        type: "number"
+        description: "Connection/tool timeouts in ms"
+        default: 60000
+
+    runtime:
+      type: "executable"
+      command: [ "bash", "-c", "../agents/interface/run_agent.sh ../agents/interface/main.py" ]
+      environment:
+        - option: "MODEL_API_KEY"
+        - option: "MODEL_NAME"
+        - option: "MODEL_PROVIDER"
+        - option: "MODEL_MAX_TOKENS"
+        - option: "MODEL_TEMPERATURE"
+        - option: "TIMEOUT_MS"
+
+  github:
+    options:
+      - name: "MODEL_API_KEY"
+        type: "string"
+        description: "API key for the model provider"
+      - name: "GITHUB_PERSONAL_ACCESS_TOKEN"
+        type: "string"
+        description: "Github token for the service"
+      - name: "MODEL_NAME"
+        type: "string"
+        description: "What model to use (e.g 'gpt-4.1')"
+        default: "gpt-4.1"
+      - name: "MODEL_PROVIDER"
+        type: "string"
+        description: "What model provider to use (e.g 'openai', etc)"
+        default: "openai"
+      - name: "MODEL_MAX_TOKENS"
+        type: "string"
+        description: "Max tokens to use"
+        default: "16000"
+      - name: "MODEL_TEMPERATURE"
+        type: "string"
+        description: "What model temperature to use"
+        default: "0.3"
+      - name: "TIMEOUT_MS"
+        type: "number"
+        description: "Connection/tool timeouts in ms"
+        default: 300
+    runtime:
+      type: "executable"
+      command: [ "bash", "-c", "../agents/github/run_agent.sh ../agents/github/main.py" ]
+      environment:
+        - option: "MODEL_API_KEY"
+        - option: "GITHUB_PERSONAL_ACCESS_TOKEN"
+        - option: "MODEL_NAME"
+        - option: "MODEL_PROVIDER"
+        - option: "MODEL_MAX_TOKENS"
+        - option: "MODEL_TEMPERATURE"
+        - option: "TIMEOUT_MS"
+
+  firecrawl:
+    options:
+      - name: "MODEL_API_KEY"
+        type: "string"
+        description: "API key for the model provider"
+      - name: "FIRECRAWL_API_KEY"
+        type: "string"
+        description: "FIRECRAWL API KEY for the service"
+      - name: "MODEL_NAME"
+        type: "string"
+        description: "What model to use (e.g 'gpt-4.1')"
+        default: "gpt-4.1"
+      - name: "MODEL_PROVIDER"
+        type: "string"
+        description: "What model provider to use (e.g 'openai', etc)"
+        default: "openai"
+      - name: "MODEL_MAX_TOKENS"
+        type: "string"
+        description: "Max tokens to use"
+        default: "16000"
+      - name: "MODEL_TEMPERATURE"
+        type: "string"
+        description: "What model temperature to use"
+        default: "0.3"
+      - name: "TIMEOUT_MS"
+        type: "number"
+        description: "Connection/tool timeouts in ms"
+        default: 300
+    runtime:
+      type: "executable"
+      command: ["bash", "-c", "../agents/firecrawl/run_agent.sh ../agents/firecrawl/main.py"]
+      environment:
+        - option: "MODEL_API_KEY"
+        - option: "FIRECRAWL_API_KEY"
+        - option: "MODEL_NAME"
+        - option: "MODEL_PROVIDER"
+        - option: "MODEL_MAX_TOKENS"
+        - option: "MODEL_TEMPERATURE"
+        - option: "TIMEOUT_MS"
+```
+</details>
+
+### Configuration Analysis
+
+The configuration file establishes three distinct agent types, each with specialized capabilities and external service integrations. Note the relative path specifications in the `command` fields, which must align with your directory structure. If you've modified the suggested folder organization, these paths require corresponding adjustments.
+
+### Launching the Coral Server
+
+Navigate to the coral-server directory and start the server with the configuration path pointing to your repository root. This ensures the server loads your custom agent definitions rather than internal examples.
 
 ```bash
 cd coral-server
-CONFIG_PATH=.. ./gradlew run
+CONFIG_PATH=../ ./gradlew run
 ```
 
-> **NOTE**: this will appear to get stuck at 86% - this is a gradle quirk, if the logs say the server has started then it has started.
+This command initiates the Coral Server, which establishes the control plane for managing agent networks and facilitating their communication protocols. The server process must remain active throughout your development session, so maintain this terminal window and use additional tabs for subsequent operations.
 
-This will launch the server,
-which acts as a control plane that manages networks of agents, and facilitates their communication and collaboration.
+## Coral Studio Web Interface Setup
 
----
+### Understanding Coral Studio's Purpose
 
-## Start Coral Studio (UI)
+Coral Studio provides a comprehensive web-based interface for session management, agent monitoring, and thread visualization. This development tool enables real-time observation of agent interactions and simplified session configuration through an intuitive graphical interface.
 
-**Coral Studio** is a web-based UI for managing sessions, agents, and threads visually.
+### Studio Installation and Execution
 
-This step walks you through installing and running Coral Studio locally on your machine.
-
-### 1. Run with npx
-
-Open your terminal (Git Bash or PowerShell) and run:
+Install and launch Coral Studio using the npx package runner, which handles dependency management automatically and ensures you receive the latest stable version.
 
 ```bash
 npx @coral-protocol/coral-studio
 ```
 
-This will start the Studio UI at [`http://127.0.0.1:3000`](http://127.0.0.1:3000)
+This command downloads necessary dependencies and starts the Studio interface at `http://127.0.0.1:3000`. The process must remain active to maintain the web interface, so preserve this terminal session for continued access.
 
-Open this URL in your web browser to access the Coral Studio interface.
+### Accessing the Studio Interface
 
-### 2. Confirm it's Working
-You should see:
-- A dashboard for Coral Studio
-- An option to create a session or connect to Coral Server
-- A visual interface to observe and interact with threads and agents
+Open your web browser and navigate to `http://127.0.0.1:3000` to access the Coral Studio dashboard. The interface provides comprehensive session management capabilities, agent configuration options, and real-time monitoring tools for observing multi-agent collaboration.
 
----
+### Verifying Successful Installation
 
-## Creating a Session
-### What is a Session?
-In short, sessions are what applications work with to create and manage the lifecycle of a given graph of agents. If you're familiar with Kubernetes, they could be thought of as custom resources that create agents all in a unique shared namespace.
+Confirm proper installation by verifying the presence of dashboard elements including session creation options, Coral Server connection capabilities, and visual interfaces for thread and agent observation.
 
-Sessions are created through a REST interface on the coral server, usually on-demand in response to a user's interaction or other event from the core business logic of a software service.
+## Multi-Agent Session Creation and Management
 
-Read more about sessions on Coral's docs [here](https://docs.coralprotocol.org/CoralDoc/CoreConcepts/Sessions).
+### Session Concepts and Architecture
 
-### Creating a Session via Coral Studio
-In production, you would typically just make a POST request using your preferred HTTP client library from your application's backend code.
+Sessions represent the fundamental organizational unit within Coral Protocol, serving as isolated namespaces where agent graphs operate with shared context and communication channels. Analogous to Kubernetes custom resources, sessions define the complete lifecycle management for a specific collection of collaborating agents.
 
-For development purposes it makes sense to use Curl, Postman, or the Coral Studio UI to create sessions.
+Production applications typically create sessions dynamically through REST API calls in response to user interactions or system events. During development, session creation through Coral Studio provides immediate visual feedback and simplified configuration management.
 
-Let's use the Coral Studio UI to create a session.
+For comprehensive session documentation, consult the [Coral Protocol session guide](https://docs.coralprotocol.org/CoralDoc/CoreConcepts/Sessions?utm_source=github&utm_medium=referral&utm_campaign=nir_github&utm_id=nir_coralprotocol).
 
-First, we need to connect to our Coral Server:
+### Required API Credentials
 
-- Click on the server selector, and press 'Add a server'
+The agents in this tutorial require specific API keys for external service integration. Gather these credentials before proceeding with session creation:
 
-![The server selector](images/server-selector.png)
+- **MODEL_API_KEY**: OpenAI authentication token available from [OpenAI's API key management page](https://platform.openai.com/api-keys?utm_source=github&utm_medium=referral&utm_campaign=nir_github&utm_id=nir_coralprotocol)
+- **FIRECRAWL_API_KEY**: Firecrawl service token obtainable from [Firecrawl's API portal](https://www.firecrawl.dev?utm_source=github&utm_medium=referral&utm_campaign=nir_github&utm_id=nir_coralprotocol)
+- **GITHUB_PERSONAL_ACCESS_TOKEN**: GitHub access token with read-only permissions, created through [GitHub's token management interface](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token?utm_source=github&utm_medium=referral&utm_campaign=nir_github&utm_id=nir_coralprotocol)
 
-- For the host, enter `localhost:5555`, and press 'Add'.
+### Server Connection Configuration
 
-![Add a server dialog box](images/add-a-server.png)
+Begin session creation by establishing a connection to your local Coral Server through the Studio interface. Click the server selector and select 'Add a server' to configure the connection.
 
-Now we can create the session:
+![The server selector](assets/server-selector.png)
 
-- Click on 'Select session', and then 'New session'
+Enter `localhost:5555` as the host address and confirm the addition. This establishes communication between Studio and your running Coral Server instance.
 
-  ![select session](images/select-session.png)
-- Make sure 'Application ID' and 'Privacy Key' match what you have in your `application.yaml`
-    - If you're using our provided config, `app` and `priv` work.
+![Add a server dialog box](assets/add-a-server.png)
 
-    ![app id and priv key inputs](images/app-priv.png)
+### Session Initialization Process
 
-Now we pick our agents:
+After establishing server connectivity, create a new session by clicking 'Select session' followed by 'New session'. Configure the Application ID and Privacy Key to match your `application.yaml` configuration. Using the provided configuration file, specify `app` for Application ID and `priv` for Privacy Key.
 
-- Click the 'New agent' under, and select 'interface'
+![select session](assets/select-session.png)
 
- ![new agent dropdown](images/new-agent.png)
-- Fill in the needed API keys
-    - For OpenAI, see [this page](https://platform.openai.com/api-keys)
-    - For Firecrawl, see [their website](https://www.firecrawl.dev/)
-    - For GitHub, see [this guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token) (make sure to *only* allow read-only permissions!)
-- For the 'interface' agent specifically, we need to add the user input custom tools:
-    - Go to the 'Custom Tools' section, and in the dropdown, select both 'request-question' and 'answer-question'
- 
-    ![custom tools dropdown](images/add-custom-tools.png)
-- Repeat for the other 2 agents ('github' & 'firecrawl')
+![app id and priv key inputs](assets/app-priv.png)
 
-> Feel free to add some extra prompts to fine-tune agent behaviour!
+### Agent Configuration and Tool Assignment
 
-With all our agents ready, we need to make a group - to indicate that all of these agents can interact:
+Configure each agent within the session by selecting 'New agent' and choosing the appropriate agent type. Begin with the 'interface' agent, which requires special configuration for user interaction capabilities.
 
-- Go to the 'Groups' section, and click 'New group'
+![new agent dropdown](assets/new-agent.png)
 
-![new group button](images/new-group-button.png)
-- Click on 'Empty group', and select all of our agents
+For the interface agent specifically, add custom user input tools by navigating to the 'Custom Tools' section and selecting both 'request-question' and 'answer-question' from the dropdown menu. These tools enable direct user communication through the Studio interface.
 
-![all agents selected in our group](images/agent-groups.png)
+![custom tools dropdown](assets/add-custom-tools.png)
 
-> You can also copy the resulting JSON from the 'Export' section - to easily import all of these settings again in future.
+Repeat the agent creation process for both 'github' and 'firecrawl' agents, providing the appropriate API credentials for each service during configuration.
 
+### Agent Group Formation
 
-Click on 'Create', and your session should spin up!
+Create a communication group to enable inter-agent collaboration by navigating to the 'Groups' section and clicking 'New group'. Select 'Empty group' and include all three configured agents to establish full communication capabilities between them.
 
-### Interact with them through Coral Studio
+![new group button](assets/new-group-button.png)
 
-Coral Studio is filling in for the interface a production application would have here. You can see in the `/sessions` POST that gets sent when you create a session (observable via the browser's network tab), that the custom tools are brought in this way:
+![all agents selected in our group](assets/agent-groups.png)
+
+### Session Export and Reusability
+
+Consider exporting the complete session configuration using the 'Export' section to create reusable templates for future session creation. This exported JSON can be imported later to quickly recreate identical agent configurations.
+
+### Session Activation
+
+Complete the configuration process by clicking 'Create' to instantiate your multi-agent session. The system will initialize all agents, establish communication channels, and prepare the collaborative environment for user interaction.
+
+```mermaid
+graph LR
+    subgraph group["Session"]
+        interface["🖥️ Interface<br/>Agent"]
+        github["🐙 GitHub<br/>Agent"] 
+        firecrawl["🕷️ Firecrawl<br/>Agent"]
+    end
+    
+    interface <--> github
+    interface <--> firecrawl
+    github <--> firecrawl
+    
+    user["👤 Coral Studio"] <--> interface
+    internet["🌐 Web"] <--> firecrawl
+    repos["📚 GitHub"] <--> github
+
+    
+    %% Styling
+    classDef interfaceStyle fill:#10b981,stroke:#059669,stroke-width:3px,color:#fff
+    classDef githubStyle fill:#6366f1,stroke:#4f46e5,stroke-width:3px,color:#fff
+    classDef firecrawlStyle fill:#ef4444,stroke:#dc2626,stroke-width:3px,color:#fff
+    classDef serverStyle fill:#fbbf24,stroke:#f59e0b,stroke-width:2px
+    
+    class interface interfaceStyle
+    class github githubStyle
+    class firecrawl firecrawlStyle
+    class server serverStyle
+```
+
+## Interactive Agent Communication and Monitoring
+
+### Understanding Custom Tool Integration
+
+Coral Studio functions as the interface layer for your multi-agent system, replacing what would typically be a production application's user interface. The custom tools integrated during session creation establish bidirectional communication channels between users and agents through HTTP-based tool calls.
+
+Examining the session creation POST request through your browser's network debugging tools reveals how custom tools are incorporated into the agent environment:
+
+<details>
+  <summary>JSON data</summary>
 
 ```json
 {
@@ -291,66 +520,57 @@ Coral Studio is filling in for the interface a production application would have
   }
 }
 ```
-Note the `"tools"` object. 
+</details>
 
-Since the agents are being made with an environment variable pointing to their personal MCP server address on their Coral server, other tools are also possible to be brought in for individual agents.
+The `tools` object demonstrates how custom HTTP-based tools are mapped to specific endpoints within Coral Studio, enabling seamless integration between agent logic and user interface components.
 
-In this case, this custom input tool which maps to a HTTP request back to coral studio is being provided to the agent.
+### Responding to Agent Queries
 
-#### Navigating to Input Tool Queries
-Once you created the session, each agent was instantiated and began iterating in their loops, freely communicating and taking actions.
+Once your session becomes active, each agent initializes and begins its operational loop, establishing communication channels and preparing for collaborative tasks. The interface agent, when ready to interact, calls the 'request-question' tool, triggering a notification in the Studio interface.
 
-When the interface agent is ready, it'll call our custom 'request-question' tool, and a notification will appear in the 'Tools > User Input' tab in your sidebar.
-![user input tool page](images/user-input.png)
+Navigate to the 'Tools > User Input' tab in the sidebar to access pending agent queries and provide responses. This interface serves as the primary communication channel between users and the agent network.
 
-After sending your response, under the hood the blocking tool call will finally return.
+![user input tool page](assets/user-input.png)
 
-The interface agent then will continue operating in its loop until it requests input again or shuts down.
+After submitting your response through the interface, the blocking tool call resolves, allowing the interface agent to continue its operational cycle. The agent processes the input, potentially collaborates with other agents, and either requests additional information or provides final responses through the 'answer-question' tool.
 
-#### Observing Agent Collaboration
+### Observing Real-Time Agent Collaboration
 
-You can see the agents collaborating to fulfill the user query by selecting a session, expanding the "Threads" collapsible section and clicking into an individual thread.
+Monitor agent collaboration and communication patterns by accessing the thread visualization interface. Select your active session, expand the "Threads" section, and click into individual threads to observe detailed interaction flows.
 
-Since we gave them an 'answer-question' tool, the interface agent will use that once it is satisfied with a response to give the user.
+![all agents selected in our group](assets/thread-view.png)
 
-### Next Steps
-By now, you should have a working multi-agent system that can interact with users and each other.
+This view provides comprehensive visibility into how agents coordinate their efforts, share information, and collectively work toward fulfilling user requests. The interface agent utilizes the 'answer-question' tool when satisfied with the collaborative response, completing the interaction cycle.
 
-Since the agents are running from source, you can modify their code and configuration to change their behavior by directly editing the agent source code in the `agents` directory.
+### Development Iteration and Customization
 
-For quickly iterating individual agent changes, check out [Devmode](https://docs.coralprotocol.org/CoralDoc/Introduction/UsingAgents#devmode) in the Coral docs.
+The source-based execution model enables rapid development iteration through direct code modification. Since agents run from source code in the `agents` directory, you can modify their behavior, add new capabilities, or adjust collaboration patterns by editing the agent implementations directly.
 
-To add a new agent:
-1. Clone the agent repository into the `agents` directory (Or wherever you want to keep your agent sources).
-2. Add the agent to the `application.yaml` config file under the `agents` section.
-3. Modify your Session POST request to include the new agent in the `agentGraph` section.
+For accelerated development workflows, explore [Devmode](https://docs.coralprotocol.org/CoralDoc/Introduction/UsingAgents#devmode?utm_source=github&utm_medium=referral&utm_campaign=nir_github&utm_id=nir_coralprotocol) documented in the Coral Protocol documentation, which provides enhanced development tools and faster iteration cycles.
 
-You can ask for help and share what you have made in the [Coral Protocol Discord](https://discord.gg/MqcwYy6gxV)
+### Expanding the Agent Network
 
-You may be interested in the [Production Deployments](#production-deployments) section below, which covers how to run Coral in production environments.
+Add new agents to your system by following a straightforward expansion process. Clone additional agent repositories into your `agents` directory, update the `application.yaml` configuration to include the new agent definitions, and modify your session creation requests to incorporate the new agents into the collaborative graph.
 
----
 
-## Production Deployments
+## Production Deployment Considerations
 
-### Runtimes
-So far we've been using the Executable runtime, which is great for development and testing to run source code directly.
-But as mentioned earlier, in production, you should use another runtime.
+### Runtime Environment Transition
 
-Using the Docker runtime is detailed [here](https://docs.coralprotocol.org/CoralDoc/Introduction/UsingAgents#docker).
+The development environment utilizes the Executable runtime for immediate source code execution, providing excellent visibility for debugging and rapid iteration. Production deployments require more robust runtime environments that ensure isolation, scalability, and security.
 
-The only difference is that a docker image tag is used instead of a source code path. Coral Server when then interact with the Docker daemon to run the agent in a container when a session is created.
+The Docker runtime represents the recommended production approach, replacing source code paths with containerized images. Detailed Docker implementation guidance is available in the [Coral Protocol Docker documentation](https://docs.coralprotocol.org/CoralDoc/Introduction/CoralServerForApplications#docker-recommended?utm_source=github&utm_medium=referral&utm_campaign=nir_github&utm_id=nir_coralprotocol). This transition involves configuring Coral Server to interact with the Docker daemon for container-based agent execution during session instantiation.
 
-### Backend
-In production, you would typically have a backend service that manages sessions and interacts with a Coral Server via its REST API.
-Coral imposes no restrictions on how you implement your backend, so you can use any language or framework you're comfortable with. It just needs to make HTTP requests to a Coral Server's endpoints.
+### Backend Service Architecture
 
-At deployment time, the coral server needs to be deployed alongside your backend service, and the backend service needs to be able to connect to it. With Kubernetes, this means adding a Service to your cluster that points to the Coral Server pod. Coral Server instances for your application should not be exposed to the public internet, as they are not meant to be directly interacted with by users.
-The Coral Server will also need a Docker socket to run agents in containers, so you will need to mount a Docker socket into the Coral Server pod. 
+Production multi-agent systems typically feature backend services that manage session lifecycles and interface with Coral Server through its REST API endpoints. Coral Protocol imposes no architectural constraints on backend implementation, supporting any programming language or framework through standard HTTP communication patterns.
 
-A Kubernetes runtime is in development along with other convenient runtime options, so keep an eye on the [Coral Server GitHub](https://github.com/Coral-Protocol/coral-server).
+The deployment architecture requires Coral Server instances to operate alongside backend services within the same network namespace. In Kubernetes environments, this involves creating Services that route traffic to Coral Server pods while ensuring these instances remain isolated from public internet access. Coral Servers require Docker socket access for container-based agent execution, necessitating appropriate volume mounts in containerized deployments.
 
-### Frontends
-Coral also does not impose any restrictions on how you implement your frontend. You can use any framework or library you're comfortable with.
+Future releases will include Kubernetes-native runtimes and additional deployment options. Monitor the [Coral Server GitHub repository](https://github.com/Coral-Protocol/coral-server?utm_source=github&utm_medium=referral&utm_campaign=nir_github&utm_id=nir_coralprotocol) for updates on these enhanced deployment capabilities.
 
-It is important to note that unlike Coral Studio, a frontend should not directly interact with the Coral Server. Instead, it should interact with your backend service, which in turn interacts with the Coral Server. Coral Studio is a development tool, and does actually have its own backend service that it uses to interact with the Coral Server, though it assumes that the Coral Server is running in the same private network.
+### Frontend Integration Strategies
+
+Frontend implementation enjoys complete flexibility, with no restrictions on frameworks, libraries, or architectural patterns. However, production frontends should never communicate directly with Coral Server instances. Instead, establish proper architectural boundaries where frontends interact exclusively with backend services, which subsequently manage Coral Server communication.
+
+Coral Studio serves as a development and debugging tool with its own integrated backend service, designed for private network operation where Coral Server access is secure and controlled. Production systems require purpose-built frontend solutions that respect security boundaries and user experience requirements specific to your application domain.
