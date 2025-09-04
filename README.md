@@ -72,7 +72,7 @@ Lastly you will need the agents. cd into `agents` and clone the agent repos.
 cd agents
 git clone -b stabletutorial https://github.com/Coral-Protocol/Coral-GithubMCP-Agent.git github
 git clone -b stabletutorial https://github.com/Coral-Protocol/Coral-FirecrawlMCP-Agent.git firecrawl
-git clone -b stabletutorial https://github.com/Coral-Protocol/Coral-Interface-Agent.git interface
+git clone -b stable https://github.com/Coral-Protocol/Coral-Interface-Agent.git interface
 ```
 
 Once you've cloned everything, your file structure should look like this:
